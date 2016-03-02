@@ -11,15 +11,20 @@ Schuchert, P., & Collins, A. G. (2008). Phylogenetics of Hydroidolina
 Take a look at the paper to familiarize yourself with the problem at hand, the 
 approach taken, the data used, and the analyses that are presented.
 
-Below are a series of analyses to perform with these data. As with many analyses, most of the hands-on work is data wrangling (getting files organized and in the right format, in preparation for analysis).
+Below are a series of analyses to perform with these data. As with many analyses, most of the hands-on work is data wrangling (getting files organized and in the right format). New ground that we cover here includes:
 
-Refer to the previous `siphonophore16s` assignment
-for details on how to perform particular steps. You can, for example, copy over 
-the shell script for running raxml and edit it for the new analyses.
+- Batch download of data from NCBI
+- Reformatting sequence names
+- Multiple sequence alignment
+- Combining data from multiple genes into a single alignment
+- Running multiple analyses
 
 ## Steps
 
-### Forking the repository on github
+Some of the steps below build on things you already did in the [siphonophore16s](https://github.com/Phylogenetics-Brown-BIOL1425/siphonophore16s) analysis. Check that repository if you are unsure about details here.
+
+
+### Fork the repository on github
 
 Browse to the GitHub repository for this exercise. If you are reading this at GitHub, you are already [there](https://github.com/Phylogenetics-Brown-BIOL1425/hydroidolina).
 
@@ -72,7 +77,7 @@ Then add the fasta files to the repository, commit, and push them:
 
 ### Generate alignments
 
-In the raw fasta files, homologous sites are not in the same columns because the sequences start in different places, and there have been insertions and deletions in the course of sequence evolution. Aligners attempt to place homologous sites in the same columns by inserting gaps (usually denoted with the `-` character) to create a data matrix. We'll use the aligner `mafft`. You can clone the respository to oscar and make the alignments there, or [download mafft](http://mafft.cbrc.jp/alignment/software/) and install it on your own computer.
+In the raw fasta files, homologous sites are not in the same columns because the sequences start in different places, and there have been insertions and deletions in the course of sequence evolution. Aligners attempt to place homologous sites in the same columns by inserting gaps (usually denoted with the `-` character) to create a data matrix. We'll use the aligner `mafft`. You can clone the respository to your oscar `~/scratch` directory and make the alignments there, or [download mafft](http://mafft.cbrc.jp/alignment/software/) and install it on your own computer.
 
   interact # only needed on oscar, starts an interactive analysis session
   module load mafft # only needed on oscar, loads the mafft module
@@ -114,28 +119,39 @@ Questions:
 
 ### Create concatenated alignments
 
-Now you have alignments for three genes. We will combine the data by creating concatenated alignments that include data for all genes. There are a few ways to do this, we'll use Mesquite. Details on concatenation are availabile in  
-[these streamlined instructions](http://ib.berkeley.edu/courses/ib200a/ib200a_sp2008/ConcatenatingDataSets.pdf), with more information available in the  
-[Mesquite Documentation](http://mesquiteproject.org/mesquite_folder/docs/mesquite/molecular/molecular.html#concatMatrices).
+Now you have alignments for three genes. We will combine the data by creating concatenated alignments that include data for all genes. There are a few ways to do this, we'll use the tool [phyutility](https://github.com/blackrim/phyutility). If you don't have java installed already, you will need to install it (if you try the command below but don't have java, it may describe how to install java on your system). Rather than install java on your laptop, you could just run the command on oscar (which has java installed already)
 
-To implement the concatenation, close all open files in Mesquite. Open `16s.nex`. Then select "Link File..." from the "File" menu and add the `18s.nex` data, and do the same again for `28s.nex`. Click "OK" when it asks you about taxon names. Then right click (or hold control while you clock) on the `16s` matrix and select "Show Matrix". From the top menu, now select "Matrix", "Utilities", and then "Concatenate Matrix". Select the first matrix in the list, and then repeat the steps for the second matrix in the list. Now inspect the matrix to make sure it has 6417 columns and 115 taxa. Save the matrix as `combined.nex`. After you have created the concatenated nexus file, export the data in phylip format. In the Mesquite File menu, select Export..., then select phylip. Set the 
-taxon names length to 50 and and line ending to Unix. Call the file 
-`combined.phy`.
+Execute the following line to create the combined analysis:
 
+    java -jar phyutility.jar -concat -in 16s.aligned.fasta 18s.aligned.fasta 28s.aligned.fasta -out combined.nex
 
-## Phylogenetic analyses of each gene
+This will create a new nexus file that has data from all three genes. Data are combined in the same row for sequences with the same species names.
 
-Now that you have trimmed alignments for each gene, you will build trees with 
-them. Copy the mpi raxml script from 
-`phylogeneticbiology/analyses/siphonophore_16s` and modify it to do a 
-maximum likelihood analysis with 100 bootstrap replicates. You should give the 
-analyses plenty of time to finish, modify the number of hours to be 4 or 8. 
-You can put the three raxml commands for your analyses of the three genes all 
-in one shell file, they will run consecutively.
+You still need to export the file as a phylip file. Open `combined.nex` in Mesquite. Open the "File" menu and select "Export". Then select "Phylip (DNA/RNA)". In the window that pops up, leave "Interleave matrix" unchecked, change the "Maximum length of taxon names" to 50, and set "End of line character" to "Unix (LF)". Click Export and save as `combined.phy`.
 
-Once you have 
-estimated your trees, copy them to your laptop and look at them with Figtree. 
-Generate a pdf of the tree and add it to you analysis folder on the cluster.
+Now that you have all your alignment files, go ahead and commit them:
+
+    git add *.nex *.phy
+    git commit -am "generated nexus and phylip alignment files"
+    git push
+
+### Maximum likelihood analyses
+
+The `raxml.sh` file contains the start of the code for running the analyses. It has lines for the combined and 16s analyses, go ahead and add lines for the 18s and 28s analyses by copying and modifying the 16s line. There are two fields that need to be modified: the name if the input file (specified by `-s`) and the base of the name for the output files (specified with `-n`).
+
+Note that the run time is 24 hours, longer than we used in the previous siphonophore16s analyses. That is because we are analyzing 4 matrices, which will take a bit longer. This script uses 8 CPU cores (specified by `#SBATCH --nodes=1`, `#SBATCH --tasks-per-node=8`, and `mpirun -n 8`) for each raxml command, but doesn't launch a command until the commands before it finish.
+
+Once you have updated the `raxml.sh` file, push the changes:
+
+    git commit -am "added 18s and 28s commands to raxml batch file"
+    git push
+
+Log in to oscar, `cd` to the `~/scratch/hydroidolina` repository directory (you will need to clone it to scratch if you haven't already), and then pull changes and launch the run:
+
+    git pull
+    sbatch raxml.sh 
+
+Once the run is complete (you can check the status with `myq`), add the new files to the git repository, push them to github, pull them to your laptop, and take a look at the results.
 
 Questions:
 
@@ -144,5 +160,4 @@ Questions:
 2. How do the trees for each gene differ from each other?
 
 3. Take a look at the raxml log files. What do these tells you about the 
-   different models of molecular evolution for the three genes?
-   of molecular evolution of the genes?
+   different models of molecular evolution for the four analyses?
