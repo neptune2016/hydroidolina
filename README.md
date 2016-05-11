@@ -79,16 +79,16 @@ Then add the fasta files to the repository, commit, and push them:
 
 In the raw fasta files, homologous sites are not in the same columns because the sequences start in different places, and there have been insertions and deletions in the course of sequence evolution. Aligners attempt to place homologous sites in the same columns by inserting gaps (usually denoted with the `-` character) to create a data matrix. We'll use the aligner `mafft`. You can clone the respository to your oscar `~/scratch` directory and make the alignments there, or [download mafft](http://mafft.cbrc.jp/alignment/software/) and install it on your own computer.
 
-  interact # only needed on oscar, starts an interactive analysis session
-  module load mafft # only needed on oscar, loads the mafft module
+    interact # only needed on oscar, starts an interactive analysis session
+    module load mafft # only needed on oscar, loads the mafft module
+    
+    mafft 28s.fasta > 28s.aligned.fasta
+    mafft 18s.fasta > 18s.aligned.fasta
+    mafft 16s.fasta > 16s.aligned.fasta
 
-  mafft 28s.fasta > 28s.aligned.fasta
-  mafft 18s.fasta > 18s.aligned.fasta
-  mafft 16s.fasta > 16s.aligned.fasta
-
-  git add *aligned.fasta
-  git commit -am "added alignments"
-  git push
+    git add *aligned.fasta
+    git commit -am "added alignments"
+    git push
 
 Unfortunately, there are many different alignment formats formats and different programs use different formats `mafft` creates alignments in fasta format, but we'll need them in phylip and nexus format for phylogenetic analyses. We also need to create combined matrices that include data from all genes. There are many scripts available online for these tasks, but we will just use the interactive tool [mesquite](http://mesquiteproject.org/) on your laptop.
 
