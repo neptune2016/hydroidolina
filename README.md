@@ -18,7 +18,7 @@ Below are a series of analyses to perform with these data. As with many analyses
 
 ## Steps
 
-Some of the steps below build on things you already did in the [siphonophore16s](https://github.com/Phylogenetics-Brown-BIOL1425/siphonophore16s) analysis. Check that repository if you are unsure about details here.
+Some of the steps below build on things covered in the [siphonophore16s](https://github.com/Phylogenetics-Brown-BIOL1425/siphonophore16s) analysis. Check that repository if you are unsure about details here.
 
 
 ### Fork the repository on github and clone it
