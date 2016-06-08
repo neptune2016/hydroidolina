@@ -101,11 +101,11 @@ Execute the following line to create the combined analysis:
 
     java -jar phyutility.jar -concat -in 16s.aligned.fasta 18s.aligned.fasta 28s.aligned.fasta -out combined.aln
 
-This will create a new fasta file that has data from all three genes. Data are combined in the same row for sequences with the same species names.
+This will create a new nexus file that has data from all three genes. Data are combined in the same row for sequences with the same species names.
 
 You need to convert the file as a phylip file. That can be done as follows:
 
-    python fasta2phylip.py combined.aln > combined.phy
+    python nexus2phylip.py combined.aln > combined.phy
 
 Now that you have all your alignment files, go ahead and commit them:
 
